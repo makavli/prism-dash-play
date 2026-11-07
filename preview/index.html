@@ -290,6 +290,27 @@ function show_infobox() {
 
     <script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>
 
+    <script>
+    (function () {
+        var Real = window.AudioContext || window.webkitAudioContext;
+        if (!Real) return;
+        var contexts = [];
+        function Tracked(options) {
+            var context = new Real(options);
+            contexts.push(context);
+            if (document.hidden) context.suspend();
+            return context;
+        }
+        Tracked.prototype = Real.prototype;
+        window.AudioContext = Tracked;
+        if (window.webkitAudioContext) window.webkitAudioContext = Tracked;
+        document.addEventListener("visibilitychange", function () {
+            contexts.forEach(function (context) {
+                (document.hidden ? context.suspend() : context.resume()).catch(function () {});
+            });
+        });
+    })();
+    </script>
 </head>
 
 <body>
