@@ -39,12 +39,12 @@ async def custom_site():
     # unpack filesystem from compressed archive into work dir
     if platform.window.location.host.find('.itch.zone')>0:
         import zipfile
-        async with platform.fopen("prismdash.apk?v=633eaffc96", "rb") as archive:
+        async with platform.fopen("prismdash.apk?v=8026996960", "rb") as archive:
             with zipfile.ZipFile(archive) as zip_ref:
                 zip_ref.extractall(appdir.as_posix())
     else:
         import tarfile
-        async with platform.fopen("prismdash.tar.gz?v=d51da37416", "rb") as archive:
+        async with platform.fopen("prismdash.tar.gz?v=bd15a0cf72", "rb") as archive:
             tar = tarfile.open(fileobj=archive, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
@@ -309,6 +309,99 @@ function show_infobox() {
                 (document.hidden ? context.suspend() : context.resume()).catch(function () {});
             });
         });
+    })();
+    </script>
+    <script>
+    (function () {
+        var FILES = {"boss": {"m4a": "music/boss.m4a?v=84a5cdd19c", "ogg": "music/boss.ogg?v=dccd203505"}, "menu": {"m4a": "music/menu.m4a?v=c596008ead", "ogg": "music/menu.ogg?v=8041fff636"}, "play": {"m4a": "music/play.m4a?v=8f5ebd2477", "ogg": "music/play.ogg?v=07a2c6486c"}};
+        var SFX = {"achievement": "sfx/achievement.wav?v=24ee45d86a", "boss_die": "sfx/boss_die.wav?v=dc4de9ef2c", "boss_hit": "sfx/boss_hit.wav?v=40afb9b506", "clang": "sfx/clang.wav?v=483f789d5f", "dash": "sfx/dash.wav?v=d00faa5620", "gameover": "sfx/gameover.wav?v=779d605b5f", "hit": "sfx/hit.wav?v=9c5d6909b3", "kill0": "sfx/kill0.wav?v=f6aba8f20e", "kill1": "sfx/kill1.wav?v=d3101e0fa2", "kill10": "sfx/kill10.wav?v=964485e8de", "kill11": "sfx/kill11.wav?v=eb0fe74900", "kill2": "sfx/kill2.wav?v=f628b08392", "kill3": "sfx/kill3.wav?v=f2b4186cb4", "kill4": "sfx/kill4.wav?v=1ead88acd0", "kill5": "sfx/kill5.wav?v=aa7a77e71f", "kill6": "sfx/kill6.wav?v=f3e0c99c84", "kill7": "sfx/kill7.wav?v=745a50144e", "kill8": "sfx/kill8.wav?v=7308064b76", "kill9": "sfx/kill9.wav?v=bcc0aa5877", "milestone": "sfx/milestone.wav?v=577d70ea01", "nova": "sfx/nova.wav?v=40bbe57df2", "power": "sfx/power.wav?v=48bba76bea", "ready": "sfx/ready.wav?v=5bfa1c3555", "select": "sfx/select.wav?v=25bb6bd0b4", "shoot": "sfx/shoot.wav?v=e4dbb844b2", "spawn": "sfx/spawn.wav?v=fdd5a8f653", "wave": "sfx/wave.wav?v=0b74245f26"};
+        var effects = {}, effectsLoading = false;
+        var probe = document.createElement("audio");
+        var ext = probe.canPlayType('audio/ogg; codecs="vorbis"') ? "ogg" : "m4a";
+        var ctx = null, master = null, buffers = {}, loading = {}, current = null, wanted = null, muted = false;
+        function context() {
+            if (!ctx) {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                ctx = new AC();
+                master = ctx.createGain();
+                master.gain.value = muted ? 0 : 1;
+                master.connect(ctx.destination);
+            }
+            return ctx;
+        }
+        function load(mood) {
+            if (buffers[mood] || loading[mood] || !FILES[mood]) return;
+            loading[mood] = fetch(FILES[mood][ext])
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+                .then(function (data) { return new Promise(function (ok, bad) { context().decodeAudioData(data, ok, bad); }); })
+                .then(function (buffer) { buffers[mood] = buffer; start(); })
+                .catch(function (e) { console.warn("music", mood, e); });
+        }
+        function start() {
+            var w = wanted;
+            if (!w || !buffers[w.mood]) return;
+            var c = context(), now = c.currentTime, fade = w.fade / 1000;
+            if (current && current.mood === w.mood) {
+                current.gain.gain.setTargetAtTime(w.volume, now, 0.3);
+                return;
+            }
+            if (current) {
+                var old = current, g0 = old.gain.gain;
+                g0.cancelScheduledValues(now);
+                g0.setValueAtTime(g0.value, now);
+                g0.linearRampToValueAtTime(0, now + fade);
+                old.source.stop(now + fade + 0.1);
+            }
+            var source = c.createBufferSource();
+            source.buffer = buffers[w.mood];
+            source.loop = true;
+            var gain = c.createGain();
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(w.volume, now + (current ? fade : 0.8));
+            source.connect(gain);
+            gain.connect(master);
+            source.start(now);
+            current = {mood: w.mood, source: source, gain: gain};
+        }
+        function loadEffects() {
+            if (effectsLoading) return;
+            effectsLoading = true;
+            Object.keys(SFX).forEach(function (name) {
+                fetch(SFX[name])
+                    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+                    .then(function (data) { return new Promise(function (ok, bad) { context().decodeAudioData(data, ok, bad); }); })
+                    .then(function (buffer) { effects[name] = buffer; })
+                    .catch(function (e) { console.warn("sfx", name, e); });
+            });
+        }
+        window.prismMusic = {
+            sfx: function (name, volume) {
+                loadEffects();
+                var buffer = effects[String(name)];
+                if (!buffer || muted || !ctx || ctx.state !== "running") return;
+                var source = ctx.createBufferSource();
+                source.buffer = buffer;
+                var gain = ctx.createGain();
+                gain.gain.value = Number(volume);
+                source.connect(gain);
+                gain.connect(master);
+                source.start();
+            },
+            mood: function (mood, volume, fadeMs) {
+                loadEffects();
+                wanted = {mood: String(mood), volume: Number(volume), fade: Number(fadeMs)};
+                for (var name in FILES) load(name);
+                start();
+            },
+            mute: function (on) {
+                muted = !!on;
+                if (master) master.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.05);
+            }
+        };
+        function unlock() {
+            if (ctx && ctx.state === "suspended" && !document.hidden) ctx.resume().catch(function () {});
+        }
+        ["pointerdown", "keydown", "touchstart"].forEach(function (e) { window.addEventListener(e, unlock, true); });
     })();
     </script>
 </head>
