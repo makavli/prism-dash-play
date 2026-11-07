@@ -39,12 +39,12 @@ async def custom_site():
     # unpack filesystem from compressed archive into work dir
     if platform.window.location.host.find('.itch.zone')>0:
         import zipfile
-        async with platform.fopen("prismdash.apk?v=e4cc21b106", "rb") as archive:
+        async with platform.fopen("prismdash.apk?v=49160ddeba", "rb") as archive:
             with zipfile.ZipFile(archive) as zip_ref:
                 zip_ref.extractall(appdir.as_posix())
     else:
         import tarfile
-        async with platform.fopen("prismdash.tar.gz?v=1bfdbee766", "rb") as archive:
+        async with platform.fopen("prismdash.tar.gz?v=602e5fcdbc", "rb") as archive:
             tar = tarfile.open(fileobj=archive, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
@@ -313,7 +313,7 @@ function show_infobox() {
     </script>
     <script>
     (function () {
-        var FILES = {"CREDITS": {"txt": "music/CREDITS.txt?v=83c6e4a5f8"}, "boss": {"m4a": "music/boss.m4a?v=f9cbcba13d", "ogg": "music/boss.ogg?v=2323313295"}, "menu": {"m4a": "music/menu.m4a?v=86f1a78ad2", "ogg": "music/menu.ogg?v=b142fbf0e5"}, "play": {"m4a": "music/play.m4a?v=de3fd80a8f", "ogg": "music/play.ogg?v=7bf538c8cb"}};
+        var FILES = {"boss": {"m4a": "music/boss.m4a?v=f9cbcba13d", "ogg": "music/boss.ogg?v=2323313295"}, "menu": {"m4a": "music/menu.m4a?v=86f1a78ad2", "ogg": "music/menu.ogg?v=b142fbf0e5"}, "play": {"m4a": "music/play.m4a?v=de3fd80a8f", "ogg": "music/play.ogg?v=7bf538c8cb"}};
         var probe = document.createElement("audio");
         var ext = probe.canPlayType('audio/ogg; codecs="vorbis"') ? "ogg" : "m4a";
         var ctx = null, master = null, buffers = {}, loading = {}, current = null, wanted = null, muted = false;
