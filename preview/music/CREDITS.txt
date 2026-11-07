@@ -1,0 +1,8 @@
+PRISM DASH music - all three tracks are CC0 (public domain), from OpenGameArt.org.
+No attribution is required; credit is given with thanks.
+
+menu.ogg  "A start to space"     by Centurion_of_war  https://opengameart.org/content/a-start-to-space
+play.ogg  "Space City"           by MintoDog          https://opengameart.org/content/space-city
+boss.ogg  "Synthwave House Loop" by Fupi              https://opengameart.org/content/synthwave-house-loop
+
+The files were re-encoded (22 kHz Ogg Vorbis) and loudness-matched for the game.

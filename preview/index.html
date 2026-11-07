@@ -39,12 +39,12 @@ async def custom_site():
     # unpack filesystem from compressed archive into work dir
     if platform.window.location.host.find('.itch.zone')>0:
         import zipfile
-        async with platform.fopen("prismdash.apk?v=bab02bc9f8", "rb") as archive:
+        async with platform.fopen("prismdash.apk?v=e4cc21b106", "rb") as archive:
             with zipfile.ZipFile(archive) as zip_ref:
                 zip_ref.extractall(appdir.as_posix())
     else:
         import tarfile
-        async with platform.fopen("prismdash.tar.gz?v=ca16793ade", "rb") as archive:
+        async with platform.fopen("prismdash.tar.gz?v=1bfdbee766", "rb") as archive:
             tar = tarfile.open(fileobj=archive, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
@@ -309,6 +309,73 @@ function show_infobox() {
                 (document.hidden ? context.suspend() : context.resume()).catch(function () {});
             });
         });
+    })();
+    </script>
+    <script>
+    (function () {
+        var FILES = {"CREDITS": {"txt": "music/CREDITS.txt?v=83c6e4a5f8"}, "boss": {"m4a": "music/boss.m4a?v=f9cbcba13d", "ogg": "music/boss.ogg?v=2323313295"}, "menu": {"m4a": "music/menu.m4a?v=86f1a78ad2", "ogg": "music/menu.ogg?v=b142fbf0e5"}, "play": {"m4a": "music/play.m4a?v=de3fd80a8f", "ogg": "music/play.ogg?v=7bf538c8cb"}};
+        var probe = document.createElement("audio");
+        var ext = probe.canPlayType('audio/ogg; codecs="vorbis"') ? "ogg" : "m4a";
+        var ctx = null, master = null, buffers = {}, loading = {}, current = null, wanted = null, muted = false;
+        function context() {
+            if (!ctx) {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                ctx = new AC();
+                master = ctx.createGain();
+                master.gain.value = muted ? 0 : 1;
+                master.connect(ctx.destination);
+            }
+            return ctx;
+        }
+        function load(mood) {
+            if (buffers[mood] || loading[mood] || !FILES[mood]) return;
+            loading[mood] = fetch(FILES[mood][ext])
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+                .then(function (data) { return new Promise(function (ok, bad) { context().decodeAudioData(data, ok, bad); }); })
+                .then(function (buffer) { buffers[mood] = buffer; start(); })
+                .catch(function (e) { console.warn("music", mood, e); });
+        }
+        function start() {
+            var w = wanted;
+            if (!w || !buffers[w.mood]) return;
+            var c = context(), now = c.currentTime, fade = w.fade / 1000;
+            if (current && current.mood === w.mood) {
+                current.gain.gain.setTargetAtTime(w.volume, now, 0.3);
+                return;
+            }
+            if (current) {
+                var old = current, g0 = old.gain.gain;
+                g0.cancelScheduledValues(now);
+                g0.setValueAtTime(g0.value, now);
+                g0.linearRampToValueAtTime(0, now + fade);
+                old.source.stop(now + fade + 0.1);
+            }
+            var source = c.createBufferSource();
+            source.buffer = buffers[w.mood];
+            source.loop = true;
+            var gain = c.createGain();
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(w.volume, now + (current ? fade : 0.8));
+            source.connect(gain);
+            gain.connect(master);
+            source.start(now);
+            current = {mood: w.mood, source: source, gain: gain};
+        }
+        window.prismMusic = {
+            mood: function (mood, volume, fadeMs) {
+                wanted = {mood: String(mood), volume: Number(volume), fade: Number(fadeMs)};
+                for (var name in FILES) load(name);
+                start();
+            },
+            mute: function (on) {
+                muted = !!on;
+                if (master) master.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.05);
+            }
+        };
+        function unlock() {
+            if (ctx && ctx.state === "suspended" && !document.hidden) ctx.resume().catch(function () {});
+        }
+        ["pointerdown", "keydown", "touchstart"].forEach(function (e) { window.addEventListener(e, unlock, true); });
     })();
     </script>
 </head>
