@@ -39,12 +39,12 @@ async def custom_site():
     # unpack filesystem from compressed archive into work dir
     if platform.window.location.host.find('.itch.zone')>0:
         import zipfile
-        async with platform.fopen("prismdash.apk?v=314d9f21a7", "rb") as archive:
+        async with platform.fopen("prismdash.apk?v=fa57129455", "rb") as archive:
             with zipfile.ZipFile(archive) as zip_ref:
                 zip_ref.extractall(appdir.as_posix())
     else:
         import tarfile
-        async with platform.fopen("prismdash.tar.gz?v=a348a6af8d", "rb") as archive:
+        async with platform.fopen("prismdash.tar.gz?v=e04179d12a", "rb") as archive:
             tar = tarfile.open(fileobj=archive, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
@@ -314,7 +314,7 @@ function show_infobox() {
     <script>
     (function () {
         var FILES = {"boss": {"m4a": "music/boss.m4a?v=84a5cdd19c", "ogg": "music/boss.ogg?v=dccd203505"}, "menu": {"m4a": "music/menu.m4a?v=c596008ead", "ogg": "music/menu.ogg?v=8041fff636"}, "play": {"m4a": "music/play.m4a?v=8f5ebd2477", "ogg": "music/play.ogg?v=07a2c6486c"}};
-        var SFX = {"achievement": "sfx/achievement.wav?v=24ee45d86a", "boss_die": "sfx/boss_die.wav?v=dc4de9ef2c", "boss_hit": "sfx/boss_hit.wav?v=40afb9b506", "clang": "sfx/clang.wav?v=483f789d5f", "dash": "sfx/dash.wav?v=d00faa5620", "gameover": "sfx/gameover.wav?v=779d605b5f", "hit": "sfx/hit.wav?v=9c5d6909b3", "kill0": "sfx/kill0.wav?v=f6aba8f20e", "kill1": "sfx/kill1.wav?v=d3101e0fa2", "kill10": "sfx/kill10.wav?v=964485e8de", "kill11": "sfx/kill11.wav?v=eb0fe74900", "kill2": "sfx/kill2.wav?v=f628b08392", "kill3": "sfx/kill3.wav?v=f2b4186cb4", "kill4": "sfx/kill4.wav?v=1ead88acd0", "kill5": "sfx/kill5.wav?v=aa7a77e71f", "kill6": "sfx/kill6.wav?v=f3e0c99c84", "kill7": "sfx/kill7.wav?v=745a50144e", "kill8": "sfx/kill8.wav?v=7308064b76", "kill9": "sfx/kill9.wav?v=bcc0aa5877", "milestone": "sfx/milestone.wav?v=577d70ea01", "nova": "sfx/nova.wav?v=40bbe57df2", "power": "sfx/power.wav?v=48bba76bea", "ready": "sfx/ready.wav?v=5bfa1c3555", "select": "sfx/select.wav?v=25bb6bd0b4", "shoot": "sfx/shoot.wav?v=e4dbb844b2", "spawn": "sfx/spawn.wav?v=fdd5a8f653", "wave": "sfx/wave.wav?v=0b74245f26"};
+        var SFX = {"achievement": "sfx/achievement.wav?v=4dd607033d", "boss_die": "sfx/boss_die.wav?v=ad0b9228a9", "boss_hit": "sfx/boss_hit.wav?v=213f6805da", "clang": "sfx/clang.wav?v=5c3c3b17a8", "dash": "sfx/dash.wav?v=ff4b63a6f8", "gameover": "sfx/gameover.wav?v=948cda12c7", "hit": "sfx/hit.wav?v=fc28729f87", "kill0": "sfx/kill0.wav?v=1e7dab42dc", "kill1": "sfx/kill1.wav?v=3ba502d529", "kill10": "sfx/kill10.wav?v=6c5feb29c6", "kill11": "sfx/kill11.wav?v=0b4d9484a5", "kill2": "sfx/kill2.wav?v=0ee13b6083", "kill3": "sfx/kill3.wav?v=b33d5187a9", "kill4": "sfx/kill4.wav?v=ddb9a2a814", "kill5": "sfx/kill5.wav?v=865891de61", "kill6": "sfx/kill6.wav?v=0948cbc579", "kill7": "sfx/kill7.wav?v=f3e3b283bc", "kill8": "sfx/kill8.wav?v=a48c73b640", "kill9": "sfx/kill9.wav?v=e15b90fbdf", "milestone": "sfx/milestone.wav?v=c1cdd63991", "nova": "sfx/nova.wav?v=c24e9213ea", "power": "sfx/power.wav?v=3b79b30646", "ready": "sfx/ready.wav?v=999432f35f", "select": "sfx/select.wav?v=ef66109f2f", "shoot": "sfx/shoot.wav?v=05aeb07457", "spawn": "sfx/spawn.wav?v=d438070a8c", "wave": "sfx/wave.wav?v=03fe9bee22"};
         var effects = {}, effectsLoading = false;
         var probe = document.createElement("audio");
         var ext = probe.canPlayType('audio/ogg; codecs="vorbis"') ? "ogg" : "m4a";
